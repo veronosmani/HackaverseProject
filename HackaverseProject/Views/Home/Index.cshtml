@@ -42,9 +42,30 @@
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
             <form method="post" asp-controller="Home" asp-action="AddToFridge" class="row g-3">
-                <div class="col-md-10">
-                    <label for="fridgeItem" class="form-label">Add something in your fridge:</label>
-                    <input type="text" name="ingredient" id="fridgeItem" class="form-control" placeholder="e.g. 3 eggs, 1L milk" required />
+                <div class="col-md-4">
+                    <label for="ingredient" class="form-label">Ingredient:</label>
+                    <input type="text" name="ingredient" id="ingredient" class="form-control" placeholder="e.g. Milk" required />
+                </div>
+                <div class="col-md-2">
+                    <label for="quantity" class="form-label">Quantity:</label>
+                    <input type="number" step="0.01" name="quantity" id="quantity" class="form-control" placeholder="e.g. 1.5" required />
+                </div>
+                <div class="col-md-2">
+                    <label for="unit" class="form-label">Unit:</label>
+                    <select name="unit" id="unit" class="form-select" required>
+                        <option value="g">g</option>
+                        <option value="kg">kg</option>
+                        <option value="ml">ml</option>
+                        <option value="l">l</option>
+                        <option value="pcs">pcs</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="type" class="form-label">Type:</label>
+                    <select name="type" id="type" class="form-select" required>
+                        <option value="solid">Solid</option>
+                        <option value="liquid">Liquid</option>
+                    </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-success w-100">Add</button>
@@ -60,36 +81,65 @@
         </div>
     </div>
 
+    <!-- Pantry List Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">📦 Pantry List</h5>
+            <table class="table table-bordered table-hover mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ingredient</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sample data. Replace with dynamic model loop -->
+                    <tr>
+                        <td>Milk</td>
+                        <td>1.0</td>
+                        <td>L</td>
+                        <td>Liquid</td>
+                    </tr>
+                    <tr>
+                        <td>Eggs</td>
+                        <td>6</td>
+                        <td>pcs</td>
+                        <td>Solid</td>
+                    </tr>
+                    @* @foreach (var item in Model.PantryList) { ... } *@
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Recipes Section -->
     <h3 class="mb-3">Suggested Recipes 🍳</h3>
-    @if (!Model.Any())
-    {
-        <div class="alert alert-warning">No cookable meals found based on your current fridge items and filters.</div>
-    }
-    else
-    {
-        <div class="row">
-            @foreach (var recipe in Model)
-            {
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">@recipe.Name</h5>
-                            <p class="mb-1"><strong>Prep Time:</strong> @recipe.PrepTime mins</p>
-                            <p class="mb-2"><strong>Type:</strong> @recipe.Category</p>
-                            <p>
-                                @foreach (var mi in recipe.MealIngredients)
-                                {
-                                    <span class="badge bg-secondary me-1">@mi.Ingredient.Name</span>
-                                }
-                            </p>
-                            <p class="text-muted">@recipe.Instructions</p>
-                            <a href="#" class="btn btn-outline-success mt-2 w-100">👨‍🍳 Cook Now</a>
-                        </div>
+    <div class="row">
+        @foreach (var recipe in new[] {
+                new { Name = "Pancakes", PrepTime = 10, MealType = "Breakfast", Tags = new[] { "Quick", "Kid-friendly" } },
+                new { Name = "Veggie Rice Bowl", PrepTime = 25, MealType = "Lunch", Tags = new[] { "Budget" } },
+                new { Name = "Chicken Stew", PrepTime = 45, MealType = "Dinner", Tags = new[] { "Hearty" } }
+                })
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@recipe.Name</h5>
+                        <p class="mb-1"><strong>Prep:</strong> @recipe.PrepTime mins</p>
+                        <p class="mb-2"><strong>Type:</strong> @recipe.MealType</p>
+                        <p>
+                            @foreach (var tag in recipe.Tags)
+                            {
+                                <span class="badge bg-secondary me-1">@tag</span>
+                            }
+                        </p>
+                        <a href="#" class="btn btn-outline-success mt-2 w-100">👨‍🍳 Cook Now</a>
                     </div>
                 </div>
-            }
-        </div>
-    }
+            </div>
+        }
+    </div>
 
 </div>
