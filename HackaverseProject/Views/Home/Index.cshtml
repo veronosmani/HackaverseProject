@@ -1,5 +1,5 @@
 ﻿@using HackaverseProject.Models
-@model List<Meal>
+@model MealsViewModel
 
 @{
     ViewData["Title"] = "What Can I Cook Today?";
@@ -7,34 +7,41 @@
 
 <div class="container py-4">
 
+
     <h1 class="mb-4 text-center">🍽️ What Can I Cook Today?</h1>
 
-    <!-- Filters Section -->
+    <!-- Pantry List Section -->
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
-            <form method="get" class="row g-3 align-items-end">
-                <div class="col-md-6">
-                    <label for="mealType" class="form-label">Meal Type:</label>
-                    <select id="mealType" name="mealType" class="form-select">
-                        <option value="" selected="@(Context.Request.Query["mealType"] == "" ? "selected" : null)">All</option>
-                        <option value="Breakfast" selected="@(Context.Request.Query["mealType"] == "Breakfast" ? "selected" : null)">Breakfast</option>
-                        <option value="Lunch" selected="@(Context.Request.Query["mealType"] == "Lunch" ? "selected" : null)">Lunch</option>
-                        <option value="Dinner" selected="@(Context.Request.Query["mealType"] == "Dinner" ? "selected" : null)">Dinner</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="prepTime" class="form-label">Max Prep Time:</label>
-                    <select id="prepTime" name="prepTime" class="form-select">
-                        <option value="" selected="@(Context.Request.Query["prepTime"] == "" ? "selected" : null)">Any</option>
-                        <option value="10" selected="@(Context.Request.Query["prepTime"] == "10" ? "selected" : null)">Under 10 minutes</option>
-                        <option value="30" selected="@(Context.Request.Query["prepTime"] == "30" ? "selected" : null)">Under 30 minutes</option>
-                        <option value="60" selected="@(Context.Request.Query["prepTime"] == "60" ? "selected" : null)">Under 1 hour</option>
-                    </select>
-                </div>
-                <div class="col-md-2 text-end">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                </div>
-            </form>
+            <h5 class="card-title">📦 Pantry List</h5>
+            <table class="table table-bordered table-hover mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ingredient</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.PantryList)
+                    {
+                        <tr>
+                            <td>@item.Ingredient?.Name</td>
+                            <td>@item.QuantityAvailable</td>
+                            <td>@item.Ingredient?.Unit</td>
+                            <td>@item.Ingredient?.Type</td>
+                            <td>
+                                <form method="post" asp-action="DeletePantryItem" asp-controller="Home" style="display:inline">
+                                    <input type="hidden" name="id" value="@item.PantryItemId" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -81,65 +88,120 @@
         </div>
     </div>
 
-    <!-- Pantry List Section -->
+    <!-- Add New Meal Section -->
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
-            <h5 class="card-title">📦 Pantry List</h5>
-            <table class="table table-bordered table-hover mt-3">
-                <thead class="table-light">
-                    <tr>
-                        <th>Ingredient</th>
-                        <th>Quantity</th>
-                        <th>Unit</th>
-                        <th>Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Sample data. Replace with dynamic model loop -->
-                    <tr>
-                        <td>Milk</td>
-                        <td>1.0</td>
-                        <td>L</td>
-                        <td>Liquid</td>
-                    </tr>
-                    <tr>
-                        <td>Eggs</td>
-                        <td>6</td>
-                        <td>pcs</td>
-                        <td>Solid</td>
-                    </tr>
-                    @* @foreach (var item in Model.PantryList) { ... } *@
-                </tbody>
-            </table>
+            <h5 class="card-title">➕ Add New Meal</h5>
+            <form method="post" asp-controller="Home" asp-action="AddMeal">
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-md-3">
+                        <label for="name" class="form-label">Meal Name:</label>
+                        <input type="text" id="name" name="name" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Category:</label>
+                        <select id="category" name="category" class="form-select" required>
+                            <option value="Breakfast">Breakfast</option>
+                            <option value="Lunch">Lunch</option>
+                            <option value="Dinner">Dinner</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="prepTime" class="form-label">Prep Time (mins):</label>
+                        <input type="number" id="prepTime" name="prepTime" min="1" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">Ingredient IDs (comma separated):</label>
+                        <input type="text" name="ingredientIds" class="form-control" placeholder="e.g. 1,2,3" required />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">Quantities (comma separated):</label>
+                        <input type="text" name="quantities" class="form-control" placeholder="e.g. 100,50,30" required />
+                    </div>
+
+                    <div class="col-md-12 text-end mt-2">
+                        <button type="submit" class="btn btn-primary">Add Meal</button>
+                    </div>
+
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Recipes Section -->
-    <h3 class="mb-3">Suggested Recipes 🍳</h3>
-    <div class="row">
-        @foreach (var recipe in new[] {
-                new { Name = "Pancakes", PrepTime = 10, MealType = "Breakfast", Tags = new[] { "Quick", "Kid-friendly" } },
-                new { Name = "Veggie Rice Bowl", PrepTime = 25, MealType = "Lunch", Tags = new[] { "Budget" } },
-                new { Name = "Chicken Stew", PrepTime = 45, MealType = "Dinner", Tags = new[] { "Hearty" } }
-                })
+    <!-- Cookable Meals Section -->
+    <h3 class="mb-3">✅ Meals You Can Cook</h3>
+    <div class="row mb-5">
+        @if (Model.CookableMeals.Any())
         {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">@recipe.Name</h5>
-                        <p class="mb-1"><strong>Prep:</strong> @recipe.PrepTime mins</p>
-                        <p class="mb-2"><strong>Type:</strong> @recipe.MealType</p>
-                        <p>
-                            @foreach (var tag in recipe.Tags)
-                            {
-                                <span class="badge bg-secondary me-1">@tag</span>
-                            }
-                        </p>
-                        <a href="#" class="btn btn-outline-success mt-2 w-100">👨‍🍳 Cook Now</a>
+            foreach (var meal in Model.CookableMeals)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">@meal.Name</h5>
+                            <p class="mb-1"><strong>Prep Time:</strong> @meal.PrepTime mins</p>
+                            <p class="mb-2"><strong>Category:</strong> @meal.Category</p>
+                            <p>
+                                @foreach (var mi in meal.MealIngredients)
+                                {
+                                    <span class="badge bg-success me-1">@mi.Ingredient?.Name</span>
+                                }
+                            </p>
+                            <a href="#" class="btn btn-outline-success w-100">👨‍🍳 Cook Now</a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         }
+        else
+        {
+            <p>No meals can be cooked with the current pantry stock.</p>
+        }
+    </div>
+
+    <!-- All Meals Table Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">📚 All Meals</h5>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Prep Time (mins)</th>
+                        <th>Ingredients</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var meal in Model.AllMeals)
+                    {
+                        <tr>
+                            <td>@meal.Name</td>
+                            <td>@meal.Category</td>
+                            <td>@meal.PrepTime</td>
+                            <td>
+                                @foreach (var mi in meal.MealIngredients)
+                                {
+                                    <span class="badge bg-secondary me-1">@mi.Ingredient?.Name (@mi.QuantityPerServing)</span>
+                                }
+                            </td>
+                            <td>
+                                <form method="post" asp-action="DeleteMeal" asp-controller="Home" style="display:inline">
+                                    <input type="hidden" name="id" value="@meal.MealId" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
