@@ -1,8 +1,88 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "What Can I Cook Today?";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+
+    <h1 class="mb-4 text-center">🍽️ What Can I Cook Today?</h1>
+
+    <!-- Filters Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="mealType" class="form-label">Meal Type:</label>
+                    <select id="mealType" name="mealType" class="form-select">
+                        <option value="" selected="@(Context.Request.Query["mealType"] == "" ? "selected" : null)">All</option>
+                        <option value="Breakfast" selected="@(Context.Request.Query["mealType"] == "Breakfast" ? "selected" : null)">Breakfast</option>
+                        <option value="Lunch" selected="@(Context.Request.Query["mealType"] == "Lunch" ? "selected" : null)">Lunch</option>
+                        <option value="Dinner" selected="@(Context.Request.Query["mealType"] == "Dinner" ? "selected" : null)">Dinner</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="prepTime" class="form-label">Max Prep Time:</label>
+                    <select id="prepTime" name="prepTime" class="form-select">
+                        <option value="" selected="@(Context.Request.Query["prepTime"] == "" ? "selected" : null)">Any</option>
+                        <option value="10" selected="@(Context.Request.Query["prepTime"] == "10" ? "selected" : null)">Under 10 minutes</option>
+                        <option value="30" selected="@(Context.Request.Query["prepTime"] == "30" ? "selected" : null)">Under 30 minutes</option>
+                        <option value="60" selected="@(Context.Request.Query["prepTime"] == "60" ? "selected" : null)">Under 1 hour</option>
+                    </select>
+                </div>
+                <div class="col-md-2 text-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add to Fridge Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="post" asp-controller="Home" asp-action="AddToFridge" class="row g-3">
+                <div class="col-md-10">
+                    <label for="fridgeItem" class="form-label">Add something in your fridge:</label>
+                    <input type="text" name="ingredient" id="fridgeItem" class="form-control" placeholder="e.g. 3 eggs, 1L milk" required />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100">Add</button>
+                </div>
+            </form>
+
+            @if (TempData["FridgeItem"] != null)
+            {
+                <div class="alert alert-info mt-3">
+                    ✅ Added: <strong>@TempData["FridgeItem"]</strong> to your fridge.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Recipes Section -->
+    <h3 class="mb-3">Suggested Recipes 🍳</h3>
+    <div class="row">
+        @foreach (var recipe in new[] {
+            new { Name = "Pancakes", PrepTime = 10, MealType = "Breakfast", Tags = new[] { "Quick", "Kid-friendly" } },
+            new { Name = "Veggie Rice Bowl", PrepTime = 25, MealType = "Lunch", Tags = new[] { "Budget" } },
+            new { Name = "Chicken Stew", PrepTime = 45, MealType = "Dinner", Tags = new[] { "Hearty" } }
+        })
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@recipe.Name</h5>
+                        <p class="mb-1"><strong>Prep:</strong> @recipe.PrepTime mins</p>
+                        <p class="mb-2"><strong>Type:</strong> @recipe.MealType</p>
+                        <p>
+                            @foreach (var tag in recipe.Tags)
+                            {
+                                <span class="badge bg-secondary me-1">@tag</span>
+                            }
+                        </p>
+                        <a href="#" class="btn btn-outline-success mt-2 w-100">👨‍🍳 Cook Now</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
 </div>
