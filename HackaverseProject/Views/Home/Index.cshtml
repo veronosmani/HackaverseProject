@@ -1,4 +1,7 @@
-﻿@{
+﻿@using HackaverseProject.Models
+@model List<Meal>
+
+@{
     ViewData["Title"] = "What Can I Cook Today?";
 }
 
@@ -51,7 +54,7 @@
             @if (TempData["FridgeItem"] != null)
             {
                 <div class="alert alert-info mt-3">
-                    ✅ Added: <strong>@TempData["FridgeItem"]</strong> to your fridge.
+                    ✅ @TempData["FridgeItem"]
                 </div>
             }
         </div>
@@ -59,30 +62,34 @@
 
     <!-- Recipes Section -->
     <h3 class="mb-3">Suggested Recipes 🍳</h3>
-    <div class="row">
-        @foreach (var recipe in new[] {
-            new { Name = "Pancakes", PrepTime = 10, MealType = "Breakfast", Tags = new[] { "Quick", "Kid-friendly" } },
-            new { Name = "Veggie Rice Bowl", PrepTime = 25, MealType = "Lunch", Tags = new[] { "Budget" } },
-            new { Name = "Chicken Stew", PrepTime = 45, MealType = "Dinner", Tags = new[] { "Hearty" } }
-        })
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">@recipe.Name</h5>
-                        <p class="mb-1"><strong>Prep:</strong> @recipe.PrepTime mins</p>
-                        <p class="mb-2"><strong>Type:</strong> @recipe.MealType</p>
-                        <p>
-                            @foreach (var tag in recipe.Tags)
-                            {
-                                <span class="badge bg-secondary me-1">@tag</span>
-                            }
-                        </p>
-                        <a href="#" class="btn btn-outline-success mt-2 w-100">👨‍🍳 Cook Now</a>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">No cookable meals found based on your current fridge items and filters.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var recipe in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">@recipe.Name</h5>
+                            <p class="mb-1"><strong>Prep Time:</strong> @recipe.PrepTime mins</p>
+                            <p class="mb-2"><strong>Type:</strong> @recipe.Category</p>
+                            <p>
+                                @foreach (var mi in recipe.MealIngredients)
+                                {
+                                    <span class="badge bg-secondary me-1">@mi.Ingredient.Name</span>
+                                }
+                            </p>
+                            <p class="text-muted">@recipe.Instructions</p>
+                            <a href="#" class="btn btn-outline-success mt-2 w-100">👨‍🍳 Cook Now</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
 
 </div>
